@@ -210,16 +210,19 @@ class Channel(ABC):
     def _construct_response(
         self, raw_response: Union[requests.Response, Any], *args, **kwargs
     ) -> Union[ResponseBase, requests.Response, Any]:
-        try:
+        # try:
             response_class = self._get_custom_response_class(
                 raw_response, *args, **kwargs
             )
 
-            response_json = raw_response.json()
-            if type(response_json) is list:
-                raw_response_data = {"list": response_json}
+            if(raw_response.content):
+                response_json = raw_response.json()
+                if type(response_json) is list:
+                    raw_response_data = {"list": response_json}
+                else:
+                    raw_response_data = response_json
             else:
-                raw_response_data = response_json
+                raw_response_data = {}
 
             return response_class(
                 **{
@@ -229,8 +232,8 @@ class Channel(ABC):
                 }
             )
 
-        except (AttributeError, ValueError, ValidationError):
-            return raw_response
+        # except (AttributeError, ValueError, ValidationError):
+        #     return raw_response
 
     @abstractmethod
     def _get_custom_response_class(
